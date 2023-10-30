@@ -1,13 +1,27 @@
-import './App.css';
 import React  from 'react';
+import './App.css';
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+} from "react-router-dom";
+import LoginPage from './pages/Login';
+import HomePage from './pages/Home';
+import Navbar from './Layout/Header'
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <p>Hello</p>
-      </header>
-    </div>
+  <html class="h-full bg-white">
+    <body class="h-full">
+      <Navbar/>
+     <BrowserRouter>
+        <Routes>
+            <Route path="/login" element={<LoginPage/>} />
+            <Route path="/" element={<HomePage/>} />
+        </Routes>
+      </BrowserRouter>
+    </body>
+  </html>
   );
 }
 
