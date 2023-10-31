@@ -9,6 +9,7 @@ import LoginPage from './pages/Login';
 import HomePage from './pages/Home';
 import Layout from './Layout/Layout'
 import SignUpPage from './pages/SignUp'
+import ProfilePage from './pages/Profile'
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
           <Route path="/" element={<Layout />}>
             <Route path="/login" element={<LoginPage/>} />
             <Route path="/signup" element={<SignUpPage/>} />
+            <Route path="/profile" element={<ProfilePage/>} />
             <Route index element={<HomePage/>} />
           </Route>
         </Routes>
