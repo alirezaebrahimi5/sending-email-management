@@ -1,4 +1,4 @@
-import React  from 'react';
+import { Link } from "react-router-dom";
 
 export default function LoginPage(){
     return(
@@ -7,7 +7,7 @@ export default function LoginPage(){
         <div className="sm:mx-auto sm:w-full sm:max-w-sm">
           <img
             className="mx-auto h-10 w-auto"
-            src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600"
+            src="https://img.icons8.com/ios-filled/100/7950F2/user-shield.png"
             alt="Your Company"
           />
           <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
@@ -39,9 +39,9 @@ export default function LoginPage(){
                   Password
                 </label>
                 <div className="text-sm">
-                  <a href="#" className="font-semibold text-indigo-600 hover:text-indigo-500">
+                  <Link to="#" className="font-semibold text-indigo-600 hover:text-indigo-500">
                     Forgot password?
-                  </a>
+                  </Link>
                 </div>
               </div>
               <div className="mt-2">
@@ -67,10 +67,10 @@ export default function LoginPage(){
           </form>
 
           <p className="mt-10 text-center text-sm text-gray-500">
-            Not a member?{' '}
-            <a href="#" className="font-semibold leading-6 text-indigo-600 hover:text-indigo-500">
-              Start a 14 day free trial
-            </a>
+            Not registered?{' '}
+            <Link to="/signup" className="font-semibold leading-6 text-indigo-600 hover:text-indigo-500">
+              Register now
+            </Link>
           </p>
         </div>
       </div>

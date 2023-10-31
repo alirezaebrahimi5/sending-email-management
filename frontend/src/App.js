@@ -7,21 +7,24 @@ import {
 } from "react-router-dom";
 import LoginPage from './pages/Login';
 import HomePage from './pages/Home';
-import Navbar from './Layout/Header'
+import Layout from './Layout/Layout'
+import SignUpPage from './pages/SignUp'
 
 function App() {
   return (
-  <html class="h-full bg-white">
-    <body class="h-full">
-      <Navbar/>
+  <div className="h-full bg-white">
+    <div className="h-full">
      <BrowserRouter>
         <Routes>
+          <Route path="/" element={<Layout />}>
             <Route path="/login" element={<LoginPage/>} />
-            <Route path="/" element={<HomePage/>} />
+            <Route path="/signup" element={<SignUpPage/>} />
+            <Route index element={<HomePage/>} />
+          </Route>
         </Routes>
       </BrowserRouter>
-    </body>
-  </html>
+    </div>
+  </div>
   );
 }
 
