@@ -11,16 +11,17 @@ import Layout from './Layout/Layout'
 import SignUpPage from './pages/SignUp'
 import ProfilePage from './pages/Profile'
 import useStore from "./store";
+import DashboardPage from './pages/Dashboard';
 
 function App() {
 
   const setLogin = useStore((state) => state.setLogin)
-  const Token = localStorage.getItem('Token');
+  const Token = localStorage.getItem('access');
   useEffect(() => {
     if(Token) {
       setLogin()
     }
-  }, []);
+  }, [Token, setLogin]);
 
   return (
   <div className="h-full bg-white">
@@ -31,6 +32,7 @@ function App() {
             <Route path="/login" element={<LoginPage/>} />
             <Route path="/signup" element={<SignUpPage/>} />
             <Route path="/profile" element={<ProfilePage/>} />
+            <Route path="/dashboard" element={<DashboardPage/>} />
             <Route index element={<HomePage/>} />
           </Route>
         </Routes>

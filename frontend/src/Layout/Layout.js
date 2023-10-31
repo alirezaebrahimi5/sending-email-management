@@ -11,20 +11,34 @@ function classNames(...classes) {
 export default function Layout() {
   const isLogin = useStore((state) => state.isLogin)
   const setLogout = useStore((state) => state.setLogout)
-  const Logout = () => {
-    localStorage.clear();
-    setLogout()
+  const Logout = async() => {
+    var refresh = localStorage.getItem('refresh');
+    if(refresh) {
+      const requestOptions = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({'refresh': refresh.replace(/^"(.*)"$/, '$1')})
+      };
+      const response = await fetch("http://localhost:8000/api/auth/logout/", requestOptions)
+      response.json().then(data => 
+        ({status: response.status, body: data})).then(obj => {
+          if(obj.status===200) {
+            localStorage.clear();
+            setLogout()
+          } 
+        });
+    }
   }
   const navigation = (!isLogin) ? [
     { name: 'Home', href: ''},
-    { name: 'Dashboard', href: '#' },
+    { name: 'Dashboard', href: '/dashboard' },
     { name: 'Settings', href: '#' },
     { name: 'Pricing', href: '#' },
     { name: 'Login', href: 'login' },
     { name: 'Register', href: 'signup' },
   ] : [
     { name: 'Home', href: ''},
-    { name: 'Dashboard', href: '#' },
+    { name: 'Dashboard', href: '/dashboard' },
     { name: 'Settings', href: '#' },
     { name: 'Pricing', href: '#' },
   ]

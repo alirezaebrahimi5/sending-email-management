@@ -42,7 +42,8 @@ export default function LoginPage(){
       response.json().then(data => 
         ({status: response.status, body: data})).then(obj => {
           if(obj.status===200) {
-            localStorage.setItem('Token',JSON.stringify({access: obj.body.access, refresh: obj.body.refresh}))
+            localStorage.setItem('access',JSON.stringify(obj.body.access))
+            localStorage.setItem('refresh',JSON.stringify(obj.body.refresh))
             setLoading(false)
             setLogin()
             navigate("/profile");
