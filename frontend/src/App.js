@@ -1,4 +1,4 @@
-import React  from 'react';
+import React,{useEffect} from 'react';
 import './App.css';
 import {
   BrowserRouter,
@@ -10,8 +10,18 @@ import HomePage from './pages/Home';
 import Layout from './Layout/Layout'
 import SignUpPage from './pages/SignUp'
 import ProfilePage from './pages/Profile'
+import useStore from "./store";
 
 function App() {
+
+  const setLogin = useStore((state) => state.setLogin)
+  const Token = localStorage.getItem('Token');
+  useEffect(() => {
+    if(Token) {
+      setLogin()
+    }
+  }, []);
+
   return (
   <div className="h-full bg-white">
     <div className="h-full">

@@ -1,7 +1,13 @@
 import { Link } from "react-router-dom";
 import { useState, useEffect } from 'react';
+import { useNavigate } from "react-router-dom";
+import useStore from "../store";
 
 export default function LoginPage(){
+  const setLogin = useStore((state) => state.setLogin)
+
+  const navigate = useNavigate();
+
   const [err, setErr] = useState(false)
   const [loading, setLoading] = useState(false)
   const [data, setData] = useState({
@@ -16,7 +22,6 @@ export default function LoginPage(){
   useEffect(() => {
     setLoading(false)
   }, [err]);
-
 
   const handleInput = e => {
     const { name, value } = e.target;
@@ -39,8 +44,11 @@ export default function LoginPage(){
           if(obj.status===200) {
             localStorage.setItem('Token',JSON.stringify({access: obj.body.access, refresh: obj.body.refresh}))
             setLoading(false)
+            setLogin()
+            navigate("/profile");
           } else {
             setErr(true)
+            setLoading(false)
           }
           
         });
@@ -112,6 +120,12 @@ export default function LoginPage(){
                 Sign in
               </button>
             </div>
+            <p className="mt-10 text-center text-sm text-gray-500">
+              Not registered?{' '}
+              <Link to="/signup" className="font-semibold leading-6 text-indigo-600 hover:text-indigo-500">
+                Register now
+              </Link>
+            </p>
             {err && 
             <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
               <strong className="font-bold">Wrong!</strong>
@@ -122,7 +136,7 @@ export default function LoginPage(){
             </div>
             }
               {loading && 
-                <div aria-label="Loading..." role="status" className="flex items-center space-x-2">
+                <div aria-label="Loading..." role="status" className="flex items-center justify-center space-x-2">
                     <svg className="h-20 w-20 animate-spin stroke-gray-500" viewBox="0 0 256 256">
                         <line x1="128" y1="32" x2="128" y2="64" strokeLinecap="round" strokeLinejoin="round" strokeWidth="24"></line>
                         <line x1="195.9" y1="60.1" x2="173.3" y2="82.7" strokeLinecap="round" strokeLinejoin="round"
@@ -143,13 +157,6 @@ export default function LoginPage(){
                 </div>
                 }
           </form>
-
-          <p className="mt-10 text-center text-sm text-gray-500">
-            Not registered?{' '}
-            <Link to="/signup" className="font-semibold leading-6 text-indigo-600 hover:text-indigo-500">
-              Register now
-            </Link>
-          </p>
         </div>
       </div>
       </>

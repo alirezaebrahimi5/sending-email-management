@@ -2,21 +2,32 @@ import { Outlet, Link, useLocation } from "react-router-dom";
 import React, { Fragment, useState, useEffect } from 'react'
 import { Disclosure, Menu, Transition } from '@headlessui/react'
 import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/24/outline'
-
-const navigation = [
-  { name: 'Home', href: ''},
-  { name: 'Dashboard', href: '#' },
-  { name: 'Settings', href: '#' },
-  { name: 'Pricing', href: '#' },
-  { name: 'Login', href: 'login' },
-  { name: 'Register', href: 'signup' },
-]
+import useStore from "../store";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
 }
 
 export default function Layout() {
+  const isLogin = useStore((state) => state.isLogin)
+  const setLogout = useStore((state) => state.setLogout)
+  const Logout = () => {
+    localStorage.clear();
+    setLogout()
+  }
+  const navigation = (!isLogin) ? [
+    { name: 'Home', href: ''},
+    { name: 'Dashboard', href: '#' },
+    { name: 'Settings', href: '#' },
+    { name: 'Pricing', href: '#' },
+    { name: 'Login', href: 'login' },
+    { name: 'Register', href: 'signup' },
+  ] : [
+    { name: 'Home', href: ''},
+    { name: 'Dashboard', href: '#' },
+    { name: 'Settings', href: '#' },
+    { name: 'Pricing', href: '#' },
+  ]
 
   const location = useLocation();
   const [current, setCurrent] = useState(location.pathname);
@@ -70,6 +81,7 @@ export default function Layout() {
                   </div>
                 </div>
               </div>
+              {isLogin &&
               <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
                 <button
                   type="button"
@@ -115,6 +127,7 @@ export default function Layout() {
                       <Menu.Item>
                         {({ active }) => (
                           <Link
+                            onClick={Logout}
                             to="#"
                             className={classNames(active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700')}
                           >
@@ -126,6 +139,7 @@ export default function Layout() {
                   </Transition>
                 </Menu>
               </div>
+              }
             </div>
           </div>
 
