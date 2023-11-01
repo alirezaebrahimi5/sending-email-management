@@ -49,14 +49,22 @@ function App() {
     const PrivateWrapper = (isLogin) => {
       return isLogin.element ? <Outlet /> : <Navigate to="/login" />;
     };
-    
+
+    const PublicWrapper = (isLogin) => {
+      return !isLogin.element ? <Outlet /> : <Navigate to="/" />;
+    };   
+
   return (
   <div className="bg-slate-100">
      <BrowserRouter>
         <Routes>
           <Route path="/" element={<Layout />}>
-            <Route path="/login" element={<LoginPage/>} />
-            <Route path="/signup" element={<SignUpPage/>} />
+            <Route element={<PublicWrapper element={isLogin} />}>
+              <Route path="/login" element={<LoginPage/>} />
+            </Route>
+            <Route element={<PublicWrapper element={isLogin} />}>
+              <Route path="/signup" element={<SignUpPage/>} />
+            </Route>          
             <Route element={<PrivateWrapper element={isLogin} />}>
               <Route path="/profile" element={<ProfilePage/>} />
             </Route>

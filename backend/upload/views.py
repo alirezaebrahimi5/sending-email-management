@@ -7,7 +7,13 @@ from django.shortcuts import render, redirect
 from .forms import CSVImportForm
 from .models import Address, FileSave
 import csv
-# ViewSets define the view behavior.
+from rest_framework.pagination import PageNumberPagination
+
+class ResultsSetPagination(PageNumberPagination):
+    page_size = 5
+    page_size_query_param = 'page_size'
+    max_page_size = 20
+    
 class UploadViewSet(ViewSet):
     serializer_class = UploadSerializer
     permission_classes = (permissions.IsAuthenticated,)
@@ -36,6 +42,8 @@ class FileList(generics.ListAPIView):
     model = FileSave
     serializer_class = FileSerializer
     permission_classes = (permissions.IsAuthenticated,)
+    pagination_class = ResultsSetPagination
+    
     def get_queryset(self):
         queryset = FileSave.objects.filter(user=self.request.user)
         return queryset
