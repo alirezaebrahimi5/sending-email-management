@@ -7,7 +7,6 @@ from django.shortcuts import render, redirect
 from .forms import CSVImportForm
 from .models import Address, FileSave
 import csv
-import pandas as pd
 # ViewSets define the view behavior.
 class UploadViewSet(ViewSet):
     serializer_class = UploadSerializer

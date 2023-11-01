@@ -47,7 +47,7 @@ export default function LoginPage(){
             localStorage.setItem('refresh',JSON.stringify(obj.body.refresh))
             setLoading(false)
             setLogin()
-            navigate("/profile");
+            navigate("/");
           } else {
             setErr(true)
             setLoading(false)

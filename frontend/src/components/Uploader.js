@@ -9,114 +9,64 @@ import useStore from "../store";
 import { useNavigate } from "react-router-dom";
 
 export default function UploadTemplate() {
+    
     const navigate = useNavigate();
-    const setLogout = useStore((state) => state.setLogout)
+
+    const isLogin = useStore((state) => state.isLogin)
     const setFiles = useStore((state) => state.setFiles)
     const fileTypes = ["CSV"];
     const [uploading, setUploading] = useState(false)
     const [res, setRes] = useState('')
 
     const updater = async() => {
-        const api = 'http://localhost:8000/files/'
-        if(localStorage.getItem('refresh')==null) {
-            setLogout()
-            navigate('/login')
+        if(isLogin){
+            const api = 'http://localhost:8000/files/'
+            const token = localStorage.getItem('access').replace(/^"(.*)"$/, '$1');
+            await axios.get(api, {
+            headers: {
+                "content-type": "multipart/form-data",
+                Authorization: `Bearer ${token}`,
+            },
+            })
+            .then((response) => {
+                setFiles(response.data)
+            })
         } else {
-        const token = localStorage.getItem('access').replace(/^"(.*)"$/, '$1');
-        await axios.get(api, {
-        headers: {
-            "content-type": "multipart/form-data",
-            Authorization: `Bearer ${token}`,
-        },
-        })
-        .then((response) => {
-            setFiles(response.data)
-        })
-        .catch((error) => {if(error.message==='Request failed with status code 401'){
-            checkFile()
-        }})
-    }}
-
-    const checkFile = async() => {
-        const api = 'http://localhost:8000/api/auth/login/refresh/'
-        if(localStorage.getItem('refresh')==null) {
-            setLogout()
             navigate('/login')
-        } else {
-        var refresh = localStorage.getItem('refresh').replace(/^"(.*)"$/, '$1')
-        const formData = new FormData();
-        formData.append("refresh", refresh);
-        await axios.post(api, formData, {
-        headers: {
-            "content-type": "multipart/form-data",
-        }})
-        .then((response) => localStorage.setItem('access',JSON.stringify(response.data.access)))
-        .catch(() => {
-            setLogout()
-            navigate("/login");
-        })
-        updater()
-        
-    }}
-
-    const checkLogin = async(e) => {
-        if(localStorage.getItem('refresh')==null) {
-            setLogout()
-            navigate('/login')
-        } else {
-        const api = 'http://localhost:8000/api/auth/login/refresh/'
-        var refresh = localStorage.getItem('refresh').replace(/^"(.*)"$/, '$1');
-        const formData = new FormData();
-        formData.append("refresh", refresh);
-        await axios.post(api, formData, {
-        headers: {
-            "content-type": "multipart/form-data",
-        }})
-        .then((response) => localStorage.setItem('access',JSON.stringify(response.data.access)))
-        .catch(() => {
-            setLogout()
-            navigate("/login");
-        })
-        uploader(e)
-        
-    }}
-      
+        }
+    }
       
     const uploader = async(e) => {
-        const api = 'http://localhost:8000/upload/'
-        if(localStorage.getItem('refresh')==null) {
-            setLogout()
-            navigate('/login')
-        } else {
-        const token = localStorage.getItem('access').replace(/^"(.*)"$/, '$1');
-        setUploading(true)
-        const formData = new FormData();
-        formData.append("file", e);
-        await axios.post(api, formData, {
-        headers: {
-            "content-type": "multipart/form-data",
-            Authorization: `Bearer ${token}`,
-        },
-        })
-        .then((resp) => {
-            updater()
-            if(resp.status===200) {
-                setUploading(false)
-                if(resp.data==='wrongType'){
-                    setRes('wrongType')
-                } else if(resp.data==='ok'){
-                    setRes('ok')
+        if(isLogin){
+            const api = 'http://localhost:8000/upload/'
+            const token = localStorage.getItem('access').replace(/^"(.*)"$/, '$1');
+            setUploading(true)
+            const formData = new FormData();
+            formData.append("file", e);
+            await axios.post(api, formData, {
+            headers: {
+                "content-type": "multipart/form-data",
+                Authorization: `Bearer ${token}`,
+            },
+            })
+            .then((resp) => {
+                updater()
+                if(resp.status===200) {
+                    setUploading(false)
+                    if(resp.data==='wrongType'){
+                        setRes('wrongType')
+                    } else if(resp.data==='ok'){
+                        setRes('ok')
+                    }
+                } else {
+                    setUploading(false)
+                    setRes('error')
                 }
-            } else {
-                setUploading(false)
-                setRes('error')
-            }
-        })
-        .catch((error) => {if(error.message==='Request failed with status code 401'){
-            checkLogin(e)
-        }})
-
-    }}
+            })
+        } else {
+            navigate('/login')
+        }}
+      
     const closeAlert = () => {
         setRes('')
       }
@@ -176,4 +126,3 @@ export default function UploadTemplate() {
         </div>
     )
 }
-        

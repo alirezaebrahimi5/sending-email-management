@@ -9,47 +9,46 @@ function classNames(...classes) {
 }
 
 export default function Layout() {
+
   const isLogin = useStore((state) => state.isLogin)
   const setLogout = useStore((state) => state.setLogout)
-  const Logout = async() => {
-    var refresh = localStorage.getItem('refresh');
-    if(refresh) {
-      const requestOptions = {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({'refresh': refresh.replace(/^"(.*)"$/, '$1')})
-      };
-      const response = await fetch("http://localhost:8000/api/auth/logout/", requestOptions)
-      response.json().then(data => 
-        ({status: response.status, body: data})).then(obj => {
-          if(obj.status===200) {
-            localStorage.clear();
-            setLogout()
-          } 
-        });
-    }
-  }
-  const navigation = (!isLogin) ? [
-    { name: 'Home', href: ''},
-    { name: 'Dashboard', href: 'dashboard' },
-    { name: 'Settings', href: '#' },
-    { name: 'Pricing', href: '#' },
-    { name: 'Login', href: 'login' },
-    { name: 'Register', href: 'signup' },
-  ] : [
-    { name: 'Home', href: ''},
-    { name: 'Dashboard', href: 'dashboard' },
-    { name: 'Settings', href: '#' },
-    { name: 'Pricing', href: '#' },
-  ]
 
   const location = useLocation();
   const [current, setCurrent] = useState(location.pathname);
 
+  const navigation = (isLogin) ? [
+    { name: 'Home', href: ''},
+    { name: 'Dashboard', href: 'dashboard' },
+    { name: 'Settings', href: '#' },
+    { name: 'Pricing', href: '#' },
+  ] : [
+    { name: 'Pricing', href: '#' },
+    { name: 'Login', href: 'login' },
+    { name: 'Register', href: 'signup' },
+  ]
+
+  const Logout = async() => {
+    var refresh = localStorage.getItem('refresh');
+    const requestOptions = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({'refresh': refresh.replace(/^"(.*)"$/, '$1')})
+    };
+    const response = await fetch("http://localhost:8000/api/auth/logout/", requestOptions)
+    response.json().then(data => 
+      ({status: response.status, body: data})).then(obj => {
+        if(obj.status===200) {
+          localStorage.clear();
+          setLogout()
+        } 
+      });
+  }
+
+
   useEffect(() => {
     setCurrent(location.pathname)
   },[location.pathname]);
-  console.log(current)
+  
   return (
     <>
     <Disclosure as="nav" className="bg-gray-800 sticky top-0 z-50">
@@ -106,7 +105,6 @@ export default function Layout() {
                   <BellIcon className="h-8 w-8" aria-hidden="true" />
                 </button>
 
-                {/* Profile dropdown */}
                 <Menu as="div" className="relative ml-3">
                   <div>
                     <Menu.Button className="relative flex rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">

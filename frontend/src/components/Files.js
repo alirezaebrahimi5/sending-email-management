@@ -1,7 +1,4 @@
-import axios from "axios";
 import useStore from "../store";
-import { useNavigate } from "react-router-dom";
-import { useEffect } from 'react';
 
 export default function Files(){
     const files = useStore((state) => state.files)
@@ -26,21 +23,18 @@ export default function Files(){
                 </thead>
                 <tbody className="text-gray-500">
                 {files.map((file, key) => 
-                               <tr key={key}>
-                               <td className="border-b border-gray-200 bg-white px-5 py-5 text-sm">
-                               <p className="whitespace-no-wrap">{file.id}</p>
-                               </td>
-           
-                               <td className="border-b border-gray-200 bg-white px-5 py-5 text-sm">
-                               <p className="whitespace-no-wrap">{file.title}</p>
-                               </td>  
-                               <td className="border-b border-gray-200 bg-white px-5 py-5 text-sm">
-                               <p className="whitespace-no-wrap">{file.date_created}</p>
-                               </td>             
-                           </tr>
-                        
-            )}
-
+                    <tr key={key}>
+                        <td className="border-b border-gray-200 bg-white px-5 py-5 text-sm">
+                            <p className="whitespace-no-wrap">{file.id}</p>
+                        </td>
+                        <td className="border-b border-gray-200 bg-white px-5 py-5 text-sm">
+                            <p className="whitespace-no-wrap">{file.title}</p>
+                        </td>  
+                        <td className="border-b border-gray-200 bg-white px-5 py-5 text-sm">
+                            <p className="whitespace-no-wrap">{file.date_created}</p>
+                        </td>             
+                    </tr>       
+                )}
             </tbody>
             </table>
         </div>
