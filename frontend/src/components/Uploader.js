@@ -1,108 +1,112 @@
-import React, { useRef, useState } from 'react';
-import { Toast } from 'primereact/toast';
-import { FileUpload } from 'primereact/fileupload';
-import { ProgressBar } from 'primereact/progressbar';
-import { Button } from 'primereact/button';
-import { Tooltip } from 'primereact/tooltip';
-import { Tag } from 'primereact/tag';
+
+import React from 'react';
+import { useState, useEffect } from 'react';
+import Spinner from './Spinner'
+import axios from "axios";
+import { FileUploader } from "react-drag-drop-files";
 
 export default function UploadTemplate() {
-    const toast = useRef(null);
-    const [totalSize, setTotalSize] = useState(0);
-    const fileUploadRef = useRef(null);
+    const fileTypes = ["CSV"];
+    const [uploading, setUploading] = useState(false)
+    const [res, setRes] = useState('')
+
+    const checkLogin = async(e) => {
+        const api = 'http://localhost:8000/api/auth/login/refresh/'
+        var refresh = localStorage.getItem('refresh').replace(/^"(.*)"$/, '$1');
+        const formData = new FormData();
+        formData.append("refresh", refresh);
+        await axios.post(api, formData, {
+        headers: {
+            "content-type": "multipart/form-data",
+        }})
+        .then((response) => localStorage.setItem('access',JSON.stringify(response.data.access)))
+        updoader(e)
+        
+    }
+      
+      
+    const updoader = async(e) => {
+        const api = 'http://localhost:8000/upload/'
+        const token = localStorage.getItem('access').replace(/^"(.*)"$/, '$1');
+        setUploading(true)
+        const formData = new FormData();
+        formData.append("file", e);
+        await axios.post(api, formData, {
+        headers: {
+            "content-type": "multipart/form-data",
+            Authorization: `Bearer ${token}`,
+        },
+        })
+        .then((resp) => {
+            if(resp.status===200) {
+                setUploading(false)
+                if(resp.data==='wrongType'){
+                    setRes('wrongType')
+                } else if(resp.data==='ok'){
+                    setRes('ok')
+                }
+            } else {
+                setUploading(false)
+                setRes('error')
+            }
+        })
+        .catch((error) => {if(error.code==='ERR_BAD_REQUEST'){
+            checkLogin(e)
+        }})
+
+    }
+    const closeAlert = () => {
+        setRes('')
+      }
+      
+      useEffect(() => {
+        setUploading(false)
+      }, [res]);
     
-    const onTemplateSelect = (e) => {
-        let _totalSize = totalSize;
-        let files = e.files;
-
-        Object.keys(files).forEach((key) => {
-            _totalSize += files[key].size || 0;
-        });
-
-        setTotalSize(_totalSize);
-    };
-
-    const onTemplateUpload = (e) => {
-        let _totalSize = 0;
-
-        e.files.forEach((file) => {
-            _totalSize += file.size || 0;
-        });
-
-        setTotalSize(_totalSize);
-        toast.current.show({ severity: 'info', summary: 'Success', detail: 'File Uploaded' });
-    };
-
-    const onTemplateRemove = (file, callback) => {
-        setTotalSize(totalSize - file.size);
-        callback();
-    };
-
-    const onTemplateClear = () => {
-        setTotalSize(0);
-    };
-
-    const headerTemplate = (options) => {
-        const { className, chooseButton, uploadButton, cancelButton } = options;
-        const value = totalSize / 10000;
-        const formatedValue = fileUploadRef && fileUploadRef.current ? fileUploadRef.current.formatSize(totalSize) : '0 B';
-
-        return (
-            <div className={className} style={{ backgroundColor: 'transparent', display: 'flex', alignItems: 'center' }}>
-                {chooseButton}
-                {uploadButton}
-                {cancelButton}
-                <div className="flex align-items-center gap-3 ml-auto">
-                    <span>{formatedValue} / 1 MB</span>
-                    <ProgressBar value={value} showValue={false} style={{ width: '10rem', height: '12px' }}></ProgressBar>
-                </div>
-            </div>
-        );
-    };
-
-    const itemTemplate = (file, props) => {
-        return (
-            <div className="flex align-items-center flex-wrap">
-                <div className="flex align-items-center" style={{ width: '40%' }}>
-                    <img alt={file.name} role="presentation" src={file.objectURL} width={100} />
-                    <span className="flex flex-column text-left ml-3">
-                        {file.name}
-                        <small>{new Date().toLocaleDateString()}</small>
-                    </span>
-                </div>
-                <Tag value={props.formatSize} severity="warning" className="px-3 py-2" />
-                <Button type="button" icon="pi pi-times" className="p-button-outlined p-button-rounded p-button-danger ml-auto" onClick={() => onTemplateRemove(file, props.onRemove)} />
-            </div>
-        );
-    };
-
-    const emptyTemplate = () => {
-        return (
-            <div className="flex align-items-center flex-column">
-                <i className="pi pi-file mt-3 p-5" style={{ fontSize: '5em', borderRadius: '50%', backgroundColor: 'var(--surface-b)', color: 'var(--surface-d)' }}></i>
-                <span style={{ fontSize: '1.2em', color: 'var(--text-color-secondary)' }} className="my-5">
-                    Drag and Drop CSV Here
-                </span>
-            </div>
-        );
-    };
-
-    const chooseOptions = { icon: 'pi pi-fw pi-file', iconOnly: true, className: 'custom-choose-btn p-button-rounded p-button-outlined' };
-    const uploadOptions = { icon: 'pi pi-fw pi-cloud-upload', iconOnly: true, className: 'custom-upload-btn p-button-success p-button-rounded p-button-outlined' };
-    const cancelOptions = { icon: 'pi pi-fw pi-times', iconOnly: true, className: 'custom-cancel-btn p-button-danger p-button-rounded p-button-outlined' };
-
+    
     return (
-        <div>
-            <Toast ref={toast}></Toast>
+        <div className="fixed w-full h-full pb-96 flex bg-slate-100">
+            <div className="extraOutline p-4 bg-white w-max bg-whtie m-auto rounded-lg">
+                <div className="file_upload p-5 relative border-4 border-dotted border-gray-300 rounded-lg w-96">
+                    <svg className="text-indigo-500 w-24 mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>
+                    <div className="input_field flex flex-col w-max mx-auto text-center">
+                        <label>
+                            <FileUploader handleChange={updoader} name="file" types={fileTypes} />
+                            <div className="mt-2 text bg-indigo-600 text-white border border-gray-300 rounded font-semibold cursor-pointer p-1 px-3 hover:bg-indigo-500">Select</div>
+                        </label>
 
-            <Tooltip target=".custom-choose-btn" content="Choose" position="bottom" />
-            <Tooltip target=".custom-upload-btn" content="Upload" position="bottom" />
-            <Tooltip target=".custom-cancel-btn" content="Clear" position="bottom" />
-
-            <FileUpload ref={fileUploadRef} name="demo[]" url="/api/upload" multiple accept="csv/*" maxFileSize={1000000}
-                onUpload={onTemplateUpload} onSelect={onTemplateSelect} onError={onTemplateClear} onClear={onTemplateClear}
-                headerTemplate={headerTemplate} itemTemplate={itemTemplate} emptyTemplate={emptyTemplate}
-                chooseOptions={chooseOptions} uploadOptions={uploadOptions} cancelOptions={cancelOptions} />
+                        <div className="title text-indigo-500 uppercase">or drop CSV file here</div>
+                    </div>
+                    {uploading && <Spinner/>}
+                    {res==='wrongType' && 
+                        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                        <strong className="font-bold">Wrong!</strong>
+                        <span className="block sm:inline">Upload just CSV file.</span>
+                        <span className="absolute top-0 bottom-0 right-0 px-4 py-3">
+                            <svg onClick={closeAlert} className="fill-current h-6 w-6 text-red-500" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><title>Close</title><path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z"/></svg>
+                        </span>
+                        </div>
+                    }
+                    {res==='error' && 
+                        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                        <strong className="font-bold">Wrong!</strong>
+                        <span className="block sm:inline">Upload again, something happened.</span>
+                        <span className="absolute top-0 bottom-0 right-0 px-4 py-3">
+                            <svg onClick={closeAlert} className="fill-current h-6 w-6 text-red-500" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><title>Close</title><path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z"/></svg>
+                        </span>
+                        </div>
+                    }
+                    {res==='ok' && 
+                        <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
+                        <strong className="font-bold">Successful!</strong>
+                        <span className="block sm:inline">Thanks, file uoloaded successfully.</span>
+                        <span className="absolute top-0 bottom-0 right-0 px-4 py-3">
+                            <svg onClick={closeAlert} className="fill-current h-6 w-6 text-green-500" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><title>Close</title><path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z"/></svg>
+                        </span>
+                        </div>
+                    }
+                </div>
+            </div>
         </div>
     )
 }
