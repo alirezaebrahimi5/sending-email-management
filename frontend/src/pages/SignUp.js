@@ -1,12 +1,10 @@
 import { Link } from "react-router-dom";
 import { useState, useEffect } from 'react';
-import useStore from "../store";
 import { useNavigate } from "react-router-dom";
 
 export default function SignUpPage(){
   const navigate = useNavigate();
   const [err, setErr] = useState(false)
-  const setLogin = useStore((state) => state.setLogin)
   const [loading, setLoading] = useState(false)
   const [input, setInput] = useState({
     email: '',

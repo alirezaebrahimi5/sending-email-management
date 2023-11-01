@@ -31,14 +31,14 @@ export default function Layout() {
   }
   const navigation = (!isLogin) ? [
     { name: 'Home', href: ''},
-    { name: 'Dashboard', href: '/dashboard' },
+    { name: 'Dashboard', href: 'dashboard' },
     { name: 'Settings', href: '#' },
     { name: 'Pricing', href: '#' },
     { name: 'Login', href: 'login' },
     { name: 'Register', href: 'signup' },
   ] : [
     { name: 'Home', href: ''},
-    { name: 'Dashboard', href: '/dashboard' },
+    { name: 'Dashboard', href: 'dashboard' },
     { name: 'Settings', href: '#' },
     { name: 'Pricing', href: '#' },
   ]

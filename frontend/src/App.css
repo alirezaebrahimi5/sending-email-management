@@ -1,0 +1,19 @@
+html {
+    font-size: 16px;
+}
+
+body {
+font-family: var(--font-family);
+font-weight: normal;
+background: var(--surface-ground);
+color: var(--text-color);
+-webkit-font-smoothing: antialiased;
+-moz-osx-font-smoothing: grayscale;
+}
+
+.card {
+background: var(--surface-card);
+padding: 2rem;
+border-radius: 10px;
+margin-bottom: 1rem;
+}
