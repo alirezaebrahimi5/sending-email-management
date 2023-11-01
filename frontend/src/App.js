@@ -24,8 +24,7 @@ function App() {
   }, [Token, setLogin]);
 
   return (
-  <div className="h-full bg-white">
-    <div className="h-full">
+  <div className="bg-slate-100">
      <BrowserRouter>
         <Routes>
           <Route path="/" element={<Layout />}>
@@ -37,7 +36,6 @@ function App() {
           </Route>
         </Routes>
       </BrowserRouter>
-    </div>
   </div>
   );
 }

@@ -1,15 +1,17 @@
 from rest_framework.viewsets import ViewSet
+from rest_framework import authentication, permissions
 from rest_framework.response import Response
-from .serializers import UploadSerializer
-
+from .serializers import UploadSerializer, FileSerializer
+from rest_framework import generics, status
 from django.shortcuts import render, redirect
 from .forms import CSVImportForm
 from .models import Address, FileSave
 import csv
+import pandas as pd
 # ViewSets define the view behavior.
 class UploadViewSet(ViewSet):
     serializer_class = UploadSerializer
-
+    permission_classes = (permissions.IsAuthenticated,)
     def list(self, request):
         return Response("GET API")
 
@@ -22,25 +24,20 @@ class UploadViewSet(ViewSet):
                 csv_file = file_uploaded,
                 user = request.user
             )
+            user = request.user
+            for row in file_uploaded:
+                nid = row.decode("utf-8").split(",")[0]
+                email = row.decode("utf-8").split(",")[1]
+                Address.objects.get_or_create(nid=nid, email=email, user=user)
         else:
             response = "wrongType"
         return Response(response)
     
-"""
-def import_csv(file):
-    form = CSVImportForm(file)
-    if form.is_valid():
-        csv_file = file.read().decode('utf-8').splitlines()
-        csv_reader = csv.DictReader(csv_file)
-
-        for row in csv_reader:
-            Address.objects.create(
-                    nid=row['id'],
-                    email=row['email'],
-                )
-            Response = ''
-            return Response(response)
-    else:
-        return Response(response)
-
-    return Response(response)"""
+class FileList(generics.ListAPIView):
+    model = FileSave
+    serializer_class = FileSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+    def get_queryset(self):
+        queryset = FileSave.objects.filter(user=self.request.user)
+        return queryset
+    

@@ -8,6 +8,7 @@ class AddressAdmin(admin.ModelAdmin):
 class FileAdmin(admin.ModelAdmin):
     list_display = ["user"]
     ordering = ['user']
+    earch_fields = ('title')
 
 admin.site.register(Address)
 admin.site.register(FileSave, FileAdmin)
