@@ -147,6 +147,13 @@ export default function Address(){
                                                 className="px-5 py-3 border-b-2 border-blue-200 bg-blue-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                                 Status
                                             </th>
+                                            <th
+                                                className="px-5 py-3 border-b-2 border-blue-200 bg-blue-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                                Delete
+                                                <button className="mx-4 bg-transparent hover:bg-red-500 text-red-700 font-semibold hover:text-white py-2 px-4 border border-red-500 hover:border-transparent rounded">
+                                                Clear All
+                                                </button>
+                                            </th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -189,6 +196,11 @@ export default function Address(){
                                                 <span className="relative">failed</span>
                                             </span>
                                             }
+                                            </td>
+                                            <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                                                <button className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 border border-red-700 rounded">
+                                                Delete
+                                                </button>
                                             </td>
                                         </tr>
                                     )}
