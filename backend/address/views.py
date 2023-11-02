@@ -11,10 +11,13 @@ import pandas as pd
 from rest_framework.pagination import PageNumberPagination
 import math
 from django.db.models import Q
-from threading import Thread
 from time import sleep
-
+from rest_framework.response import Response
+from rest_framework.views import APIView
 from django.core.mail import EmailMessage
+import concurrent.futures
+import time
+
 class ResultsSetPagination(PageNumberPagination):
     page_size = 10
     page_size_query_param = 'page_size'
@@ -77,32 +80,36 @@ class MyAddressSearch(generics.ListAPIView):
         return queryset
     
 class SendMail():
-    def __init__(self, addresslist):
+    def __init__(self,template):
         self._from_address = 'my_email_address'
-        self._to_addresslist = addresslist
+        self.template = template
 
-    def buildmessage(self, **kwargs):
-        message = []
-        for item in self._to_addresslist:
-            message.append(item)
-        return message
+    def buildmessage(self, address, **kwargs):
+        self.sendmail(address)
 
     @staticmethod
     def sendmail(message):
-        for item in message:
-            sleep(5)
+        sleep(5)
             #email = EmailMessage(subject, html_content, from_email, [to])
             #email.send()
-            print("Ok!")
-        return
+        print("Ok!")
+        return Response('ok')
             
-def startMail(request):
-    if request.method == 'GET' and request.use.is_authenticated:
-        addess = Address.objects.filter(Q(user=request.user) & Q(sent=False))
-        
+
+class startMail(APIView):
+    
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get(self, request):
+        address = Address.objects.filter(Q(user=request.user) & Q(sent=False))
+            
         print('Main thread: Starting  threaded call to send V1 class')
-        email = SendMail(addess)
-        msg = email.buildmessage(a='a', b='b')
-        t = Thread(target=email.sendmail, args=[msg])
-        t.start()
+        template = ''
+        email = SendMail(template)
+        t1 = time.perf_counter()
+        with concurrent.futures.ThreadPoolExecutor(10) as executor:
+            executor.map(email.buildmessage, address)
+        t2 = time.perf_counter()
+        print(t2-t1)
         print("Main thread: I have created the thread, and am done.")
+        return Response('ok')
