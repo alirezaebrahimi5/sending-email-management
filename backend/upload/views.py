@@ -1,11 +1,11 @@
 from rest_framework.viewsets import ViewSet
 from rest_framework import authentication, permissions
 from rest_framework.response import Response
-from .serializers import UploadSerializer, FileSerializer
+from .serializers import UploadSerializer
 from rest_framework import generics, status
 from django.shortcuts import render, redirect
 from .forms import CSVImportForm
-from .models import Address, FileSave
+from .models import Address
 import csv
 from rest_framework.pagination import PageNumberPagination
 import math
@@ -42,10 +42,6 @@ class UploadViewSet(ViewSet):
         content_type = file_uploaded.content_type
         if content_type == 'text/csv':
             response = "ok"
-            FileSave.objects.create(
-                csv_file = file_uploaded,
-                user = request.user
-            )
             user = request.user
             for row in file_uploaded:
                 nid = row.decode("utf-8").split(",")[0]
@@ -54,14 +50,3 @@ class UploadViewSet(ViewSet):
         else:
             response = "wrongType"
         return Response(response)
-    
-class FileList(generics.ListAPIView):
-    model = FileSave
-    serializer_class = FileSerializer
-    permission_classes = (permissions.IsAuthenticated,)
-    pagination_class = ResultsSetPagination
-    
-    def get_queryset(self):
-        queryset = FileSave.objects.filter(user=self.request.user)
-        return queryset
-    

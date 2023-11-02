@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import useStore from "../store";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 export default function Pagination(){
 
-    const [pages, setPages] = useState(1)
+    const navigate = useNavigate();
+
     const files = useStore((state) => state.files)
     const setFiles = useStore((state) => state.setFiles)
 
@@ -20,6 +22,9 @@ export default function Pagination(){
         .then((response) => {
             setFiles(response.data)
         })
+        .catch(() => {
+            navigate('/')
+        })
     }
 
     const pervPage = async() => {
@@ -33,6 +38,9 @@ export default function Pagination(){
         })
         .then((response) => {
             setFiles(response.data)
+        })
+        .catch(() => {
+            navigate('/')
         })
     }
 

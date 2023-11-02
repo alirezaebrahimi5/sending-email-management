@@ -13,7 +13,31 @@ export default function Address(){
     const isLogin = useStore((state) => state.isLogin)
     const setFiles = useStore((state) => state.setFiles)
     const [loading, setLoading] = useState(false)
-    
+    const setLogout = useStore((state) => state.setLogout)
+    const setLogin = useStore((state) => state.setLogin)
+  
+    const Auth = async() => {
+      const api = 'http://localhost:8000/api/auth/login/refresh/'
+      if(localStorage.getItem('refresh')==null) {
+          setLogout()
+      } else {
+      var refresh = localStorage.getItem('refresh').replace(/^"(.*)"$/, '$1')
+      const formData = new FormData();
+      formData.append("refresh", refresh);
+      await axios.post(api, formData, {
+      headers: {
+          "content-type": "multipart/form-data",
+      }})
+      .then((response) => {
+        localStorage.setItem('access',JSON.stringify(response.data.access))
+        setLogin()
+        getAddress()
+      })
+      .catch(() => {
+          setLogout()
+      })    
+    }}
+
     const getAddress = async() => {
         if(isLogin) {
             setLoading(true)
@@ -28,6 +52,10 @@ export default function Address(){
             .then((response) => {
                 setLoading(false)
                 setFiles(response.data)
+            })
+            .catch(() => {
+                setLoading(false)
+                Auth()
             })
         } else {
             navigate('/login')
@@ -51,6 +79,11 @@ export default function Address(){
             .then((response) => {
                 setLoading(false)
                 setFiles(response.data)
+                
+            })
+            .catch(() => {
+                setLoading(false)
+                Auth()
             })
         } else {
             navigate('/login')
@@ -75,6 +108,10 @@ export default function Address(){
                 setLoading(false)
                 setFiles(response.data)
             })
+            .catch(() => {
+                setLoading(false)
+                Auth()
+            })
         } else {
             navigate('/login')
         }
@@ -82,7 +119,7 @@ export default function Address(){
 
     useEffect(() => {
         getAddress()
-      }, []);
+      }, [isLogin]);
 
     return(
         <>
@@ -125,38 +162,33 @@ export default function Address(){
                             </div>
                             <Pagination />
                         </div>
-                        <div className="-mx-4 sm:-mx-8 px-4 sm:px-8 py-4 overflow-x-auto">
-                            <div className="inline-block min-w-full shadow rounded-lg overflow-hidden">
+                        <div className="-mx-4 sm:-mx-8 px-4 sm:px-8 overflow-scroll h-96">
+                            <div className="inline-block min-w-full shadow rounded-lg">
                             {loading ? <Spinner/> :
-                                <table className="min-w-full leading-normal">
+                                <table className="relative min-w-full leading-normal">
                                     <thead>
                                         <tr>
                                             <th
-                                                className="px-5 py-3 border-b-2 border-blue-200 bg-blue-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                                className="sticky top-0 px-5 py-3 border-b-2 border-blue-200 bg-blue-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                                 Email
                                             </th>
                                             <th
-                                                className="px-5 py-3 border-b-2 border-blue-200 bg-blue-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                                className="sticky top-0 px-5 py-3 border-b-2 border-blue-200 bg-blue-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                                 ID
                                             </th>
                                             <th
-                                                className="px-5 py-3 border-b-2 border-blue-200 bg-blue-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                                send at
-                                            </th>
-                                            <th
-                                                className="px-5 py-3 border-b-2 border-blue-200 bg-blue-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                                className="sticky top-0 px-5 py-3 border-b-2 border-blue-200 bg-blue-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                                 Status
                                             </th>
                                             <th
-                                                className="px-5 py-3 border-b-2 border-blue-200 bg-blue-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                                Delete
-                                                <button className="mx-4 bg-transparent hover:bg-red-500 text-red-700 font-semibold hover:text-white py-2 px-4 border border-red-500 hover:border-transparent rounded">
+                                                className="sticky top-0 px-5 py-3 border-b-2 border-blue-200 bg-blue-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                                <button className="bg-transparent hover:bg-red-500 text-red-700 font-semibold hover:text-white py-2 px-4 border border-red-500 hover:border-transparent rounded">
                                                 Clear All
                                                 </button>
                                             </th>
                                         </tr>
                                     </thead>
-                                    <tbody>
+                                    <tbody className="overflow-auto">
                                     {files.results!==undefined && files.results.map((file, key) =>
                                         <tr key={key}>
                                             <td className="py-5 border-b border-gray-200 bg-white text-sm">
@@ -170,35 +202,17 @@ export default function Address(){
                                                 <p className="text-gray-900 whitespace-no-wrap">{file.nid}</p>
                                             </td>
                                             <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                                                <p className="text-gray-900 whitespace-no-wrap">
-                                                    {file.last_sent}
-                                                </p>
-                                            </td>
-                                            <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
                                             {file.wating ?
-                                                <span
-                                                className="relative inline-block px-3 py-1 font-semibold text-yellow-900 leading-tight">
-                                                <span aria-hidden
-                                                    className="absolute inset-0 bg-yellow-200 opacity-50 rounded-full"></span>
-                                                <span className="relative">wating</span>
-                                            </span>:
+                                                <span className="bg-yellow-100 text-yellow-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full dark:bg-yellow-900 dark:text-yellow-300">Waiting</span>
+                                                :
                                             file.sent ? 
-                                                <span
-                                                    className="relative inline-block px-3 py-1 font-semibold text-green-900 leading-tight">
-                                                    <span aria-hidden
-                                                        className="absolute inset-0 bg-green-200 opacity-50 rounded-full"></span>
-                                                    <span className="relative">sent</span>
-                                                </span>:
-                                                <span
-                                                className="relative inline-block px-3 py-1 font-semibold text-red-900 leading-tight">
-                                                <span aria-hidden
-                                                    className="absolute inset-0 bg-red-200 opacity-50 rounded-full"></span>
-                                                <span className="relative">failed</span>
-                                            </span>
+                                                <span className="bg-green-100 text-green-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full dark:bg-green-900 dark:text-green-300">Sent</span>
+                                                :
+                                                <span className="bg-red-100 text-red-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full dark:bg-red-900 dark:text-red-300">Failed</span>
                                             }
                                             </td>
                                             <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                                                <button className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 border border-red-700 rounded">
+                                                <button className="bg-transparent hover:bg-red-500 text-red-700 font-semibold hover:text-white py-2 px-4 border border-red-500 hover:border-transparent rounded">
                                                 Delete
                                                 </button>
                                             </td>

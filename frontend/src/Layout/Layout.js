@@ -20,9 +20,7 @@ export default function Layout() {
     { name: 'Home', href: ''},
     { name: 'Dashboard', href: 'dashboard' },
     { name: 'Settings', href: '#' },
-    { name: 'Pricing', href: '#' },
   ] : [
-    { name: 'Pricing', href: '#' },
     { name: 'Login', href: 'login' },
     { name: 'Register', href: 'signup' },
   ]

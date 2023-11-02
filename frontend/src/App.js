@@ -43,7 +43,6 @@ function App() {
 }}
 
   useEffect(() => {
-    checkAuth()
     },[isLogin]);
 
     const PrivateWrapper = (isLogin) => {
@@ -55,7 +54,7 @@ function App() {
     };   
 
   return (
-  <div className="bg-slate-100">
+  <div className="bg-slate-100" onLoad={checkAuth}>
      <BrowserRouter>
         <Routes>
           <Route path="/" element={<Layout />}>

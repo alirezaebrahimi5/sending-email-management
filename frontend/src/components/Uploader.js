@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import Spinner from './Spinner'
 import axios from "axios";
 import { FileUploader } from "react-drag-drop-files";
-import Files from './Files';
 import useStore from "../store";
 import { useNavigate } from "react-router-dom";
 
@@ -13,29 +12,10 @@ export default function UploadTemplate() {
     const navigate = useNavigate();
 
     const isLogin = useStore((state) => state.isLogin)
-    const setFiles = useStore((state) => state.setFiles)
     const fileTypes = ["CSV"];
     const [uploading, setUploading] = useState(false)
     const [res, setRes] = useState('')
 
-    const updater = async() => {
-        if(isLogin){
-            const api = 'http://localhost:8000/files/'
-            const token = localStorage.getItem('access').replace(/^"(.*)"$/, '$1');
-            await axios.get(api, {
-            headers: {
-                "content-type": "multipart/form-data",
-                Authorization: `Bearer ${token}`,
-            },
-            })
-            .then((response) => {
-                setFiles(response.data)
-            })
-        } else {
-            navigate('/login')
-        }
-    }
-      
     const uploader = async(e) => {
         if(isLogin){
             const api = 'http://localhost:8000/upload/'
@@ -50,7 +30,6 @@ export default function UploadTemplate() {
             },
             })
             .then((resp) => {
-                updater()
                 if(resp.status===200) {
                     setUploading(false)
                     if(resp.data==='wrongType'){
@@ -63,6 +42,10 @@ export default function UploadTemplate() {
                     setRes('error')
                 }
             })
+            .catch(() => {
+                navigate('/')
+            })
+            
         } else {
             navigate('/login')
         }}
@@ -74,8 +57,6 @@ export default function UploadTemplate() {
       useEffect(() => {
         setUploading(false)
       }, [res]);
-
-      updater()
     
     return (
         <div className='flex-col'>
@@ -122,7 +103,6 @@ export default function UploadTemplate() {
                 </div>
             </div>
         </div>
-        <Files />
         </div>
     )
 }
