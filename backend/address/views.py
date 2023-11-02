@@ -11,6 +11,10 @@ import pandas as pd
 from rest_framework.pagination import PageNumberPagination
 import math
 from django.db.models import Q
+from threading import Thread
+from time import sleep
+
+from django.core.mail import EmailMessage
 class ResultsSetPagination(PageNumberPagination):
     page_size = 10
     page_size_query_param = 'page_size'
@@ -71,3 +75,34 @@ class MyAddressSearch(generics.ListAPIView):
         param = self.request.query_params.get('search')
         queryset = Address.objects.filter(Q(user=self.request.user) & Q(email__icontains=param) | Q(nid__icontains=param))
         return queryset
+    
+class SendMail():
+    def __init__(self, addresslist):
+        self._from_address = 'my_email_address'
+        self._to_addresslist = addresslist
+
+    def buildmessage(self, **kwargs):
+        message = []
+        for item in self._to_addresslist:
+            message.append(item)
+        return message
+
+    @staticmethod
+    def sendmail(message):
+        for item in message:
+            sleep(5)
+            #email = EmailMessage(subject, html_content, from_email, [to])
+            #email.send()
+            print("Ok!")
+        return
+            
+def startMail(request):
+    if request.method == 'GET' and request.use.is_authenticated:
+        addess = Address.objects.filter(Q(user=request.user) & Q(sent=False))
+        
+        print('Main thread: Starting  threaded call to send V1 class')
+        email = SendMail(addess)
+        msg = email.buildmessage(a='a', b='b')
+        t = Thread(target=email.sendmail, args=[msg])
+        t.start()
+        print("Main thread: I have created the thread, and am done.")
