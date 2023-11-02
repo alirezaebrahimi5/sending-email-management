@@ -103,13 +103,11 @@ class startMail(APIView):
     def get(self, request):
         address = Address.objects.filter(Q(user=request.user) & Q(sent=False))
             
-        print('Main thread: Starting  threaded call to send V1 class')
         template = ''
         email = SendMail(template)
         t1 = time.perf_counter()
         with concurrent.futures.ThreadPoolExecutor(10) as executor:
             executor.map(email.buildmessage, address)
         t2 = time.perf_counter()
-        print(t2-t1)
-        print("Main thread: I have created the thread, and am done.")
+
         return Response('ok')

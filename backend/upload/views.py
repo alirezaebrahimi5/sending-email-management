@@ -9,6 +9,9 @@ from .models import Address
 import csv
 from rest_framework.pagination import PageNumberPagination
 import math
+from rest_framework.views import APIView
+from django.db.models import Q
+
 class ResultsSetPagination(PageNumberPagination):
     page_size = 5
     page_size_query_param = 'page_size'
@@ -50,3 +53,25 @@ class UploadViewSet(ViewSet):
         else:
             response = "wrongType"
         return Response(response)
+
+class DeleteAddress(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    
+    def delete(self, request):
+        nid = self.request.query_params.get('nid')
+        email = self.request.query_params.get('email')
+        
+        address = Address.objects.filter(Q(user=self.request.user) & Q(email=email) | Q(nid=nid))[0]
+        address.delete()
+        
+        return Response(status=status.HTTP_200_OK)
+    
+class DeleteAll(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    
+    def get(self, request):
+        address = Address.objects.filter(user=self.request.user)
+        for item in address:
+            item.delete()
+        
+        return Response(status=status.HTTP_200_OK)

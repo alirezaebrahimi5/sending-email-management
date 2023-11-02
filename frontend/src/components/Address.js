@@ -62,6 +62,11 @@ export default function Address(){
         }
     }
     
+
+    useEffect(() => {
+        getAddress()
+    }, [isLogin]);
+
     const filtering = async(e) => {
         if(isLogin) {
             setLoading(true)
@@ -117,10 +122,59 @@ export default function Address(){
         }
     }
 
-    useEffect(() => {
-        getAddress()
-      }, [isLogin]);
+      const deleting = async(e, file) => {
+        if(isLogin) {
+            setLoading(true)
+            const api = 'http://localhost:8000/delete/'
+            const token = localStorage.getItem('access').replace(/^"(.*)"$/, '$1');
+            await axios.delete(api, {
+            headers: {
+                "content-type": "multipart/form-data",
+                Authorization: `Bearer ${token}`,
+            },
+            params: {
+                'nid': file.nid,
+                'email': file.email
+            }
+            })
+            .then((response) => {
+                setLoading(false)
+                getAddress()
+            })
+            .catch(() => {
+                setLoading(false)
+                Auth()
+            })
+        } else {
+            navigate('/login')
+        }
+    }
 
+    const deletingAll = async() => {
+        if(isLogin) {
+            setLoading(true)
+            const api = 'http://localhost:8000/delete_all/'
+            const token = localStorage.getItem('access').replace(/^"(.*)"$/, '$1');
+            await axios.get(api, {
+            headers: {
+                "content-type": "multipart/form-data",
+                Authorization: `Bearer ${token}`,
+            },
+            })
+            .then((response) => {
+                setLoading(false)
+                getAddress()
+                
+            })
+            .catch(() => {
+                setLoading(false)
+                Auth()
+            })
+        } else {
+            navigate('/login')
+        }
+    }
+    
     return(
         <>
             <div className="antialiased font-sans">
@@ -182,7 +236,7 @@ export default function Address(){
                                             </th>
                                             <th
                                                 className="sticky top-0 px-5 py-3 border-b-2 border-blue-200 bg-blue-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                                <button className="bg-transparent hover:bg-red-500 text-red-700 font-semibold hover:text-white py-2 px-4 border border-red-500 hover:border-transparent rounded">
+                                                <button onClick={deletingAll} className="bg-transparent hover:bg-red-500 text-red-700 font-semibold hover:text-white py-2 px-4 border border-red-500 hover:border-transparent rounded">
                                                 Clear All
                                                 </button>
                                             </th>
@@ -212,7 +266,7 @@ export default function Address(){
                                             }
                                             </td>
                                             <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                                                <button className="bg-transparent hover:bg-red-500 text-red-700 font-semibold hover:text-white py-2 px-4 border border-red-500 hover:border-transparent rounded">
+                                                <button onClick={e => deleting(e, file)} className="bg-transparent hover:bg-red-500 text-red-700 font-semibold hover:text-white py-2 px-4 border border-red-500 hover:border-transparent rounded">
                                                 Delete
                                                 </button>
                                             </td>
