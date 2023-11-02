@@ -15,6 +15,31 @@ export default function UploadTemplate() {
     const fileTypes = ["CSV"];
     const [uploading, setUploading] = useState(false)
     const [res, setRes] = useState('')
+    const setLogout = useStore((state) => state.setLogout)
+    const setLogin = useStore((state) => state.setLogin)
+
+    const Auth = async(e) => {
+        const api = 'http://localhost:8000/api/auth/login/refresh/'
+        if(localStorage.getItem('refresh')==null) {
+            setLogout()
+        } else {
+        var refresh = localStorage.getItem('refresh').replace(/^"(.*)"$/, '$1')
+        const formData = new FormData();
+        formData.append("refresh", refresh);
+        await axios.post(api, formData, {
+        headers: {
+            "content-type": "multipart/form-data",
+        }})
+        .then((response) => {
+          localStorage.setItem('access',JSON.stringify(response.data.access))
+          setLogin()
+          uploader(e)
+        })
+        .catch(() => {
+            setLogout()
+            navigate('/login')
+        })    
+      }}
 
     const uploader = async(e) => {
         if(isLogin){
@@ -43,7 +68,7 @@ export default function UploadTemplate() {
                 }
             })
             .catch(() => {
-                navigate('/')
+                Auth(e)
             })
             
         } else {
