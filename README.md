@@ -28,7 +28,7 @@
 ![Screen Shot](https://github.com/alirezaebrahimi5/sending-email-management/blob/main/preview/1.png)
 ![Screen Shot](https://github.com/alirezaebrahimi5/sending-email-management/blob/main/preview/2.png)
 ![Screen Shot](https://github.com/alirezaebrahimi5/sending-email-management/blob/main/preview/3.png)
-![Screen Shot](https://github.com/alirezaebrahimi5/sending-email-management/blob/main/preview/5.png)
+![Screen Shot](https://github.com/alirezaebrahimi5/sending-email-management/blob/main/preview/4.png)
 ![Screen Shot](https://github.com/alirezaebrahimi5/sending-email-management/blob/main/preview/5.png)
 ![Screen Shot](https://github.com/alirezaebrahimi5/sending-email-management/blob/main/preview/6.png)
 ![Screen Shot](https://github.com/alirezaebrahimi5/sending-email-management/blob/main/preview/7.png)
