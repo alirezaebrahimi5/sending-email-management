@@ -156,6 +156,14 @@ class TemplateView(APIView):
     permission_classes = (permissions.IsAuthenticated,)
 
     def get(self, request):
-        template,_ = Template.objects.get_or_create(user=request.user)
         
-        return Response({'subject':template.subject, 'body':template.body})
+        
+        subject = self.request.query_params.get('subject')
+        body = self.request.query_params.get('body')
+        if body!= None and subject != None:
+            Template.objects.filter(user=request.user).update(subject=subject, body=body)
+            return Response(status=status.HTTP_200_OK)
+        else:
+            template,_ = Template.objects.get_or_create(user=request.user)
+            return Response({'subject':template.subject, 'body':template.body})
+    
