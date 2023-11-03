@@ -21,7 +21,6 @@ export default function Bar(){
     const setLogin = useStore((state) => state.setLogin)
     const setLogout = useStore((state) => state.setLogout)
     const isStart = useStore((state) => state.isStart)
-    const isPause = useStore((state) => state.isPause)
     const isStop = useStore((state) => state.isStop)
     const setStart = useStore((state) => state.setStart)
     const setStop = useStore((state) => state.setStop)

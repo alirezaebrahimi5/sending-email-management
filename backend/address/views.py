@@ -156,6 +156,6 @@ class TemplateView(APIView):
     permission_classes = (permissions.IsAuthenticated,)
 
     def get(self, request):
-        template = Template.objects.get_or_create(user=request.user)
+        template,_ = Template.objects.get_or_create(user=request.user)
         
         return Response({'subject':template.subject, 'body':template.body})

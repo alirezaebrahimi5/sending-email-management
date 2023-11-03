@@ -19,7 +19,7 @@ export default function Layout() {
   const navigation = (isLogin) ? [
     { name: 'Home', href: ''},
     { name: 'Dashboard', href: 'dashboard' },
-    { name: 'Settings', href: '#' },
+    { name: 'Settings', href: 'settings' },
   ] : [
     { name: 'Login', href: 'login' },
     { name: 'Register', href: 'signup' },

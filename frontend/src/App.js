@@ -13,6 +13,7 @@ import SignUpPage from './pages/SignUp'
 import ProfilePage from './pages/Profile'
 import useStore from "./store";
 import DashboardPage from './pages/Dashboard';
+import SettingsPage from './pages/Settings';
 import axios from "axios";
 
 function App() {
@@ -69,6 +70,9 @@ function App() {
             </Route>
             <Route element={<PrivateWrapper element={isLogin} />}>
               <Route path="/dashboard" element={<DashboardPage />} />
+            </Route>
+            <Route element={<PrivateWrapper element={isLogin} />}>
+              <Route path="/settings" element={<SettingsPage />} />
             </Route>
             <Route element={<PrivateWrapper element={isLogin} />}>
               <Route index element={<HomePage/>} />
