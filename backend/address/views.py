@@ -15,6 +15,7 @@ from celery import shared_task
 from celery_progress.backend import ProgressRecorder
 import os
 from backend.celery import app as myapp
+from itertools import repeat
 class ResultsSetPagination(PageNumberPagination):
     page_size = 10
     page_size_query_param = 'page_size'
@@ -76,21 +77,6 @@ class MyAddressSearch(generics.ListAPIView):
         queryset = Address.objects.filter(Q(user=self.request.user) & Q(email__icontains=param) | Q(nid__icontains=param))
         return queryset
     
-class SendMail():
-    def __init__(self,template):
-        self._from_address = 'my_email_address'
-        self.template = template
-
-    def buildmessage(self, address, **kwargs):
-        self.sendmail(address)
-
-    @staticmethod
-    def sendmail(message):
-        sleep(5)
-            #email = EmailMessage(subject, html_content, from_email, [to])
-            #email.send()
-        print("Ok!")
-                    
 
 class startMail(APIView):
     
@@ -98,10 +84,18 @@ class startMail(APIView):
 
     def get(self, request):
         address = Address.objects.filter(Q(user=request.user) & Q(sent=False)).values_list()
-        template = ''
         
-
-        data = self.split_list(address)
+        user_template,_ = Template.objects.get_or_create(user=request.user)
+        
+        template = [request.user.email, user_template.subject, user_template.body]
+        
+        n_data = len(address)
+        if n_data%10 == 0:
+            n_batche = n_data//1
+        else:
+            n_batche = n_data//1 +1
+            
+        data = self.split_list(address, wanted_parts=n_batche)
         
         try:
             old_data = Data.objects.get(user=request.user)
@@ -109,8 +103,7 @@ class startMail(APIView):
             old_data.delete()
         except Data.DoesNotExist:
             pass
-        
-        task = celery_function.delay(template, data)
+        task = celery_function.delay(data, template)
 
         Data.objects.get_or_create(user=request.user, taskId=task.id)
         return Response(task.id)
@@ -123,24 +116,23 @@ class startMail(APIView):
         return [ alist[i*length // wanted_parts: (i+1)*length // wanted_parts] 
                 for i in range(wanted_parts) ]
 
-def send_mail(arr):
-    sleep(1)
-    nid, email, user_id, = arr[0][1], arr[0][2], arr[0][3]
-
-    add = Address.objects.filter(Q(nid=nid) & Q(email=email) & Q(user__id=user_id)).update(wating=False,sent=True)
-    
-    #email = EmailMessage(subject, html_content, from_email, [to])
-    #email.send()
+def send_mail(arr, template):
+    from_email, subject, body = template
+    nid, email, user_id, = arr[1], arr[2], arr[3]
+    Address.objects.filter(Q(nid=nid) & Q(email=email) & Q(user__id=user_id)).update(wating=False,sent=True)
+    message = body.format(nid= nid, email= email)
+    email = EmailMessage(subject, message, from_email, [email])
+    "email.send()"
+    sleep(2)
     print("Ok!")
     
 @shared_task(bind=True)
-def celery_function(self, template, data):
-    email = template
+def celery_function(self, data, template):
     progress_recorder = ProgressRecorder(self)
     result = 0
-    for i in data:
+    for i in range(len(data)):
         with concurrent.futures.ThreadPoolExecutor(10) as executor:
-            executor.map(send_mail, data)
+            executor.map(send_mail, data[i], repeat(template))
         result += 1
         progress_recorder.set_progress(result + 1, len(data))
     return result
@@ -157,4 +149,13 @@ class stopMail(APIView):
         myapp.control.revoke(task_id, terminate=True)
         data.remove()
         return Response(status=status.HTTP_200_OK)
-         
+
+
+class TemplateView(APIView):
+    
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get(self, request):
+        template = Template.objects.get_or_create(user=request.user)
+        
+        return Response({'subject':template.subject, 'body':template.body})

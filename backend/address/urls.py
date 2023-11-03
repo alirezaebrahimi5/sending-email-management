@@ -7,5 +7,6 @@ urlpatterns = [
     path('address_search/', MyAddressSearch.as_view(), name='files-search'),
     path('start_mail/', startMail.as_view(), name='start_mail'),
     path('stop_mail/', stopMail.as_view(), name='stop_mail'),
+    path('template/', TemplateView.as_view(), name='template'),
 
 ]
