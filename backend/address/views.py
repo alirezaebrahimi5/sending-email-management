@@ -143,12 +143,14 @@ class stopMail(APIView):
     permission_classes = (permissions.IsAuthenticated,)
 
     def get(self, request):
-        task_id = self.request.query_params.get('task_id')
-        print(task_id)
-        data = Data.objects.get(user=request.user)
-        myapp.control.revoke(task_id, terminate=True)
-        data.remove()
-        return Response(status=status.HTTP_200_OK)
+        try:
+            task_id = self.request.query_params.get('task_id')
+            data = Data.objects.get(user=request.user)
+            myapp.control.revoke(task_id, terminate=True)
+            data.remove()
+            return Response(status=status.HTTP_200_OK)
+        except:
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
 
 class TemplateView(APIView):
