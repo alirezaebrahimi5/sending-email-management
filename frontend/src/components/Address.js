@@ -11,10 +11,12 @@ export default function Address(){
 
     const files = useStore((state) => state.files)
     const isLogin = useStore((state) => state.isLogin)
+    const isProgress = useStore((state) => state.isProgress)
     const setFiles = useStore((state) => state.setFiles)
     const [loading, setLoading] = useState(false)
     const setLogout = useStore((state) => state.setLogout)
     const setLogin = useStore((state) => state.setLogin)
+
   
     const Auth = async() => {
       const api = 'http://localhost:8000/api/auth/login/refresh/'
@@ -64,8 +66,9 @@ export default function Address(){
     
 
     useEffect(() => {
+        console.log(isProgress)
         getAddress()
-    }, [isLogin]);
+    }, [isLogin,isProgress]);
 
     const filtering = async(e) => {
         if(isLogin) {

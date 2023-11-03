@@ -13,9 +13,8 @@ from django.core.mail import EmailMessage
 import concurrent.futures
 from celery import shared_task
 from celery_progress.backend import ProgressRecorder
-import time
-
-
+import os
+from backend.celery import app as myapp
 class ResultsSetPagination(PageNumberPagination):
     page_size = 10
     page_size_query_param = 'page_size'
@@ -103,6 +102,14 @@ class startMail(APIView):
         
 
         data = self.split_list(address)
+        
+        try:
+            old_data = Data.objects.get(user=request.user)
+            myapp.control.revoke(old_data.taskId, terminate=True)
+            old_data.delete()
+        except Data.DoesNotExist:
+            pass
+        
         task = celery_function.delay(template, data)
 
         Data.objects.get_or_create(user=request.user, taskId=task.id)
@@ -137,3 +144,17 @@ def celery_function(self, template, data):
         result += 1
         progress_recorder.set_progress(result + 1, len(data))
     return result
+
+
+class stopMail(APIView):
+    
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get(self, request):
+        task_id = self.request.query_params.get('task_id')
+        print(task_id)
+        data = Data.objects.get(user=request.user)
+        myapp.control.revoke(task_id, terminate=True)
+        data.remove()
+        return Response(status=status.HTTP_200_OK)
+         

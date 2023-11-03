@@ -15,6 +15,8 @@ export default function Bar(){
 
     const navigate = useNavigate();
 
+    const setProgress = useStore((state) => state.setProgress)
+    const setComplate = useStore((state) => state.setComplate)
     const isLogin = useStore((state) => state.isLogin)
     const setLogin = useStore((state) => state.setLogin)
     const setLogout = useStore((state) => state.setLogout)
@@ -25,12 +27,37 @@ export default function Bar(){
     const setPause = useStore((state) => state.setPause)
     const setStop = useStore((state) => state.setStop)
 
-    const StopMail = () => {
-        setStop(true)
+    const StopMail = async() => {
+        if(isLogin) {
+            setStop(true)
+              const api = 'http://localhost:8000/stop_mail/'
+              const token = localStorage.getItem('access').replace(/^"(.*)"$/, '$1');
+              const token_id = localStorage.getItem('tokenId').replace(/^"(.*)"$/, '$1');
+              await axios.get(api, {
+              headers: {
+                  "content-type": "multipart/form-data",
+                  Authorization: `Bearer ${token}`,
+              },
+              params: {
+                'task_id': token_id
+                }})
+              .then(response => {
+                setPercent(0)
+                localStorage.removeItem('tokenId')
+                setComplate()
+
+              })
+              .catch((err) => {
+                  console.log(err)
+              })
+          } else {
+              navigate('//login')
+          }
+        setProgress()
     }
 
     const PauseMail = () => {
-        setPause(true)
+        setPause()
     }
 
     const getProgress = (taskId) => {
@@ -38,15 +65,21 @@ export default function Bar(){
           .then((res) => {
               if (!res.data.complete && !res.data?.progess?.pending) {
                 setPercent(res.data.progress.percent)
-                setTimeout(getProgress(taskId), 20000);
+                setTimeout(getProgress(taskId), 50000);
               } else {
-                setStop(true)
+                setStop()
+                localStorage.removeItem('tokenId')
+                setComplate()
               }
             
   
           })
           .catch((err) =>
-            console.log(err)
+            {
+                setStop()
+                localStorage.removeItem('tokenId')
+                setComplate()
+            }
           );
     };
     
@@ -81,8 +114,13 @@ export default function Bar(){
               headers: {
                   "content-type": "multipart/form-data",
                   Authorization: `Bearer ${token}`,
-              },})
-              .then(response => getProgress(response.data))
+              },
+            })
+              .then(response => {
+                setProgress()
+                getProgress(response.data)
+                localStorage.setItem('tokenId',response.data)
+              })
               .catch(() => {
                   Auth()
               })
@@ -90,6 +128,13 @@ export default function Bar(){
               navigate('/login')
           }
       }
+
+      useEffect(() => {
+        const task_id = localStorage.getItem('tokenId')
+        if (task_id !== null) {
+            getProgress(task_id)
+        }
+    }, [isLogin]);
 
     return(
     <div className="bg-slate-200 max-w-min mx-auto mt-8 px-8 pb-8 rounded-lg drop-shadow-xl border-solid border-2 border-slate-200">
