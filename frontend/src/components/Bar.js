@@ -30,23 +30,22 @@ export default function Bar(){
             setStop(true)
               const api = 'http://localhost:8000/stop_mail/'
               const token = localStorage.getItem('access').replace(/^"(.*)"$/, '$1');
-              const token_id = localStorage.getItem('tokenId').replace(/^"(.*)"$/, '$1');
               await axios.get(api, {
               headers: {
                   "content-type": "multipart/form-data",
                   Authorization: `Bearer ${token}`,
               },
-              params: {
-                'task_id': token_id
-                }})
+              })
               .then(response => {
                 setPercent(0)
-                localStorage.removeItem('tokenId')
+                if(localStorage.getItem('tokenId') !== null){
+                    localStorage.removeItem('tokenId')
+                }
                 setComplate()
 
               })
               .catch((err) => {
-                  console.log(err)
+                console.log(err)
               })
           } else {
               navigate('//login')

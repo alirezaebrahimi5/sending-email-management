@@ -144,13 +144,14 @@ class stopMail(APIView):
 
     def get(self, request):
         try:
-            task_id = self.request.query_params.get('task_id')
+            #task_id = self.request.query_params.get('task_id')
             data = Data.objects.get(user=request.user)
+            task_id = data.taskId
             myapp.control.revoke(task_id, terminate=True)
             data.remove()
             return Response(status=status.HTTP_200_OK)
         except:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+            return Response(status=status.HTTP_200_OK)
 
 
 class TemplateView(APIView):

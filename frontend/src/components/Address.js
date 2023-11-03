@@ -66,7 +66,6 @@ export default function Address(){
     
 
     useEffect(() => {
-        console.log(isProgress)
         getAddress()
     }, [isLogin,isProgress]);
 
