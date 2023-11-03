@@ -1,7 +1,7 @@
 <br/>
 <p align="center">
   <h3 align="center">Responsive Micro-SaaS to manage sending email</h3>
-
++
   <p align="center">
     Manage email addresses in csv file to save on database and send dynamic template with multi threading and celery for each user.
     <br/>
@@ -32,6 +32,7 @@
 ![Screen Shot](https://github.com/alirezaebrahimi5/sending-email-management/blob/main/preview/5.png)
 ![Screen Shot](https://github.com/alirezaebrahimi5/sending-email-management/blob/main/preview/6.png)
 ![Screen Shot](https://github.com/alirezaebrahimi5/sending-email-management/blob/main/preview/7.png)
+![Screen Shot](https://github.com/alirezaebrahimi5/sending-email-management/blob/main/preview/8.png)
 
 This micro-saas platform can handle multi queue for each user with celery worker and multi threading. With JWT authentication and continuing email queue even after logout. Eacch user has specific task id for manage termination. Save email sending status for each user and delete one-by-one option. Dynamic template for each user based on csv columns.
 
