@@ -25,13 +25,13 @@
 
 ## About The Project
 
-![Screen Shot](https://github.com/alirezaebrahimi5/sending-email-management/blob/main/preview/1.png
-https://github.com/alirezaebrahimi5/sending-email-management/blob/main/preview/2.png
-https://github.com/alirezaebrahimi5/sending-email-management/blob/main/preview/3.png
-https://github.com/alirezaebrahimi5/sending-email-management/blob/main/preview/5.png
-https://github.com/alirezaebrahimi5/sending-email-management/blob/main/preview/5.png
-https://github.com/alirezaebrahimi5/sending-email-management/blob/main/preview/6.png
-https://github.com/alirezaebrahimi5/sending-email-management/blob/main/preview/7.png)
+![Screen Shot](https://github.com/alirezaebrahimi5/sending-email-management/blob/main/preview/1.png)
+![Screen Shot](https://github.com/alirezaebrahimi5/sending-email-management/blob/main/preview/2.png)
+![Screen Shot](https://github.com/alirezaebrahimi5/sending-email-management/blob/main/preview/3.png)
+![Screen Shot](https://github.com/alirezaebrahimi5/sending-email-management/blob/main/preview/5.png)
+![Screen Shot](https://github.com/alirezaebrahimi5/sending-email-management/blob/main/preview/5.png)
+![Screen Shot](https://github.com/alirezaebrahimi5/sending-email-management/blob/main/preview/6.png)
+![Screen Shot](https://github.com/alirezaebrahimi5/sending-email-management/blob/main/preview/7.png)
 
 This micro-saas platform can handle multi queue for each user with celery worker and multi threading. With JWT authentication and continuing email queue even after logout. Eacch user has specific task id for manage termination. Save email sending status for each user and delete one-by-one option. Dynamic template for each user based on csv columns.
 
