@@ -21,6 +21,9 @@ export default function ProfilePage(){
 
       
     const [err, setErr] = useState(false)
+    const [err2, setErr2] = useState(false)
+    const setLogout = useStore((state) => state.setLogout)
+    const setLogin = useStore((state) => state.setLogin)
     const [loading, setLoading] = useState(false)
     const [profile, setProfile] = useState()
     const isLogin = useStore((state) => state.isLogin)
@@ -34,7 +37,8 @@ export default function ProfilePage(){
             headers: {
                 "content-type": "multipart/form-data",
                 Authorization: `Bearer ${token}`,
-            }})
+            },
+            })
             .then(response => {
                 setProfile(response.data.email)
             })
@@ -51,29 +55,61 @@ export default function ProfilePage(){
         getProfile()
     }, []);
 
+    const Auth = async() => {
+        const api = 'http://localhost:8000/api/auth/login/refresh/'
+        if(localStorage.getItem('refresh')==null) {
+            setLogout()
+        } else {
+        var refresh = localStorage.getItem('refresh').replace(/^"(.*)"$/, '$1')
+        const formData = new FormData();
+        formData.append("refresh", refresh);
+        await axios.post(api, formData, {
+        headers: {
+            "content-type": "multipart/form-data",
+        }})
+        .then((response) => {
+            localStorage.setItem('access',JSON.stringify(response.data.access))
+            setLogin()
+        })
+        .catch(() => {
+            setLogout()
+        })    
+    }}
+
     const passReset = async(e) => {
-        setLoading(true)
         e.preventDefault()
-        const requestOptions = {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(input)
-        };
-        const response = await fetch("http://localhost:8000/api/auth/reset/", requestOptions);
-        response.json().then(data => 
-          ({status: response.status, body: data})).then(obj => {
-            if(obj.status===200) {
-              localStorage.setItem('access',JSON.stringify(obj.body.access))
-              localStorage.setItem('refresh',JSON.stringify(obj.body.refresh))
-              setLoading(false)
-              navigate("/");
+        setLoading(true)
+        if(isLogin) {
+            const api = "http://localhost:8000/api/auth/reset/"
+            const token = localStorage.getItem('access').replace(/^"(.*)"$/, '$1');
+            await axios.get(api, {
+                headers: {
+                    "content-type": "multipart/form-data",
+                    Authorization: `Bearer ${token}`,
+                },
+                params: {
+                    'password': input.password ,
+                    'password2': input.password2
+                    }
+                })
+                .then(response => {
+                    if(response.status === 200) {
+                        setLoading(false)
+                        setErr(true)
+                    }}
+                )
+                .catch(err => {
+                    if(err.state === 401) {
+                        Auth()
+                    } else {
+                        setErr2(true)
+                    }
+                })
             } else {
-              setErr(true)
-              setLoading(false)
+                    navigate('/login')
+                }
             }
-            
-          });
-      }
+        
 
       const onInputChange = e => {
         const { name, value } = e.target;
@@ -196,9 +232,18 @@ export default function ProfilePage(){
           </form>
 
           {err && 
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+            <div className="bg-green-100 mt-4 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
+              <strong className="font-bold">sucessfull! </strong>
+              <span className="block sm:inline">Password changed successfully.</span>
+              <span className="absolute top-0 bottom-0 right-0 px-4 py-3">
+                <svg onClick={closeAlert} className="fill-current h-6 w-6 text-green-500" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><title>Close</title><path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z"/></svg>
+              </span>
+            </div>
+          }
+          {err2 && 
+            <div className="bg-red-100 mt-4 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
               <strong className="font-bold">Wrong!</strong>
-              <span className="block sm:inline">Enter Email and password again.</span>
+              <span className="block sm:inline">Enter password again.</span>
               <span className="absolute top-0 bottom-0 right-0 px-4 py-3">
                 <svg onClick={closeAlert} className="fill-current h-6 w-6 text-red-500" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><title>Close</title><path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z"/></svg>
               </span>
