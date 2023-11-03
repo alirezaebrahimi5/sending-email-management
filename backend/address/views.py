@@ -1,22 +1,20 @@
-from rest_framework.viewsets import ViewSet
-from rest_framework import authentication, permissions
+from rest_framework import permissions
 from rest_framework.response import Response
 from .serializers import *
 from rest_framework import generics, status
-from django.shortcuts import render, redirect
 from .models import *
 from upload.models import Address
-import csv
-import pandas as pd
 from rest_framework.pagination import PageNumberPagination
 import math
 from django.db.models import Q
 from time import sleep
-from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.core.mail import EmailMessage
 import concurrent.futures
+from celery import shared_task
+from celery_progress.backend import ProgressRecorder
 import time
+
 
 class ResultsSetPagination(PageNumberPagination):
     page_size = 10
@@ -93,21 +91,49 @@ class SendMail():
             #email = EmailMessage(subject, html_content, from_email, [to])
             #email.send()
         print("Ok!")
-        return Response('ok')
-            
+                    
 
 class startMail(APIView):
     
     permission_classes = (permissions.IsAuthenticated,)
 
     def get(self, request):
-        address = Address.objects.filter(Q(user=request.user) & Q(sent=False))
-            
+        address = Address.objects.filter(Q(user=request.user) & Q(sent=False)).values_list()
         template = ''
-        email = SendMail(template)
-        t1 = time.perf_counter()
-        with concurrent.futures.ThreadPoolExecutor(10) as executor:
-            executor.map(email.buildmessage, address)
-        t2 = time.perf_counter()
+        
 
-        return Response('ok')
+        data = self.split_list(address)
+        task = celery_function.delay(template, data)
+
+        Data.objects.get_or_create(user=request.user, taskId=task.id)
+        return Response(task.id)
+         
+
+    
+    @staticmethod
+    def split_list(alist, wanted_parts=10):
+        length = len(alist)
+        return [ alist[i*length // wanted_parts: (i+1)*length // wanted_parts] 
+                for i in range(wanted_parts) ]
+
+def send_mail(arr):
+    print('*******')
+    sleep(1)
+    #email = EmailMessage(subject, html_content, from_email, [to])
+    #email.send()
+    print("Ok!")
+    
+@shared_task(bind=True)
+def celery_function(self, template, data):
+    print('$$$$$$$$44')
+    email = template
+    progress_recorder = ProgressRecorder(self)
+    result = 0
+    for i in data:
+        print('ok')
+        with concurrent.futures.ThreadPoolExecutor(10) as executor:
+            executor.map(send_mail, data)
+        print('#######33')
+        result += 1
+        progress_recorder.set_progress(result + 1, len(data))
+    return result

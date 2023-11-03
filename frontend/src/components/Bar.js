@@ -5,8 +5,10 @@ import { useNavigate } from "react-router-dom";
 
 export default function Bar(){
 
+    const [percent, setPercent] = useState(0)
+
     const myStyle = {
-        strokeDasharray: '10.35px, 100px',
+        strokeDasharray: `${percent}px, 100px`,
         strokeDashoffset: '0px',
         transition: 'stroke-dashoffset 0.3s ease 0s, stroke-dasharray 0.3s ease 0s, stroke 0.3s linear 0s, 0.06s'
     }
@@ -31,6 +33,23 @@ export default function Bar(){
         setPause(true)
     }
 
+    const getProgress = (taskId) => {
+        axios.get(`http://localhost:8000/celery-progress/${taskId}`)
+          .then((res) => {
+              if (!res.data.complete && !res.data?.progess?.pending) {
+                setPercent(res.data.progress.percent)
+                setTimeout(getProgress(taskId), 20000);
+              } else {
+                setStop(true)
+              }
+            
+  
+          })
+          .catch((err) =>
+            console.log(err)
+          );
+    };
+    
     const Auth = async() => {
         const api = 'http://localhost:8000/api/auth/login/refresh/'
         if(localStorage.getItem('refresh')==null) {
@@ -62,8 +81,8 @@ export default function Bar(){
               headers: {
                   "content-type": "multipart/form-data",
                   Authorization: `Bearer ${token}`,
-              },
-              })
+              },})
+              .then(response => getProgress(response.data))
               .catch(() => {
                   Auth()
               })
@@ -78,7 +97,7 @@ export default function Bar(){
            <div className="mb-7">
                 <div className="flex justify-between py-1">
                     <span className="text-base text-gray-lite font-semibold dark:text-blue-600">In Progress</span>
-                    <span className="text-base font-semibold text-gray-lite pr-5 dark:text-blue-600">65%</span>
+                    <span className="text-base font-semibold text-gray-lite pr-5 dark:text-blue-600">{percent}%</span>
                 </div>
                 <svg className="rc-progress-line h-2 w-full" viewBox="0 0 100 1" preserveAspectRatio="none">
                     <path className="rc-progress-line-trail" d="M 0.5,0.5

@@ -1,9 +1,5 @@
 from django.db import models
 from user.models import CustomUser as User
-import os
-import uuid
-import string
-import random
 
 class Address(models.Model):
     nid = models.CharField(max_length=11, blank=False, null=False)
