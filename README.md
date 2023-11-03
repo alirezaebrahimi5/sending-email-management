@@ -1,6 +1,6 @@
 <br/>
 <p align="center">
-  <h3 align="center">Responsive Micro-SaaS sending email management</h3>
+  <h3 align="center">Responsive Micro-SaaS to manage sending email</h3>
 
   <p align="center">
     Manage email addresses in csv file to save on database and send dynamic template with multi threading and celery for each user.
