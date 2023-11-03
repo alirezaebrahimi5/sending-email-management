@@ -117,23 +117,23 @@ class startMail(APIView):
                 for i in range(wanted_parts) ]
 
 def send_mail(arr):
-    print('*******')
     sleep(1)
+    nid, email, user_id, = arr[0][1], arr[0][2], arr[0][3]
+
+    add = Address.objects.filter(Q(nid=nid) & Q(email=email) & Q(user__id=user_id)).update(wating=False,sent=True)
+    
     #email = EmailMessage(subject, html_content, from_email, [to])
     #email.send()
     print("Ok!")
     
 @shared_task(bind=True)
 def celery_function(self, template, data):
-    print('$$$$$$$$44')
     email = template
     progress_recorder = ProgressRecorder(self)
     result = 0
     for i in data:
-        print('ok')
         with concurrent.futures.ThreadPoolExecutor(10) as executor:
             executor.map(send_mail, data)
-        print('#######33')
         result += 1
         progress_recorder.set_progress(result + 1, len(data))
     return result
