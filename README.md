@@ -34,7 +34,7 @@
 ![Screen Shot](https://github.com/alirezaebrahimi5/sending-email-management/blob/main/preview/7.png)
 ![Screen Shot](https://github.com/alirezaebrahimi5/sending-email-management/blob/main/preview/8.png)
 
-This micro-saas platform can handle multi queue for each user with celery worker and multi threading. With JWT authentication and continuing email queue even after logout. Eacch user has specific task id for manage termination. Save email sending status for each user and delete one-by-one option. Dynamic template for each user based on csv columns.
+This micro-saas platform can handle multi queue for each user with celery worker and multi threading. With JWT authentication and continuing email queue even after logout. Each user has specific task id for manage termination. Save email sending status for each user and delete one-by-one option. Dynamic template for each user based on csv columns.
 
 Here's to-do:
 
@@ -42,7 +42,7 @@ Here's to-do:
 * Change log table columns based on user needs
 * Change number of celery workers based on user account type
 * Add end time with celery beat
-* Draw charts based on performance and sever usage
+* Draw charts based on performance and server usage
 * Use web-sockets to send notifications
 
 Challenges:
